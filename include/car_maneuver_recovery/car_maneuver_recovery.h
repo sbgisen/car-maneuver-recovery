@@ -39,7 +39,8 @@
 #define CAR_MANEUVER_RECOVERY_CAR_MANEUVER_RECOVERY_H
 
 #include <ros/ros.h>
-#include <tf/tf.h>
+// #include <tf/tf.h>
+#include <tf/transform_listener.h>
 #include <costmap_2d/costmap_2d_ros.h>
 #include <nav_core/recovery_behavior.h>
 #include <base_local_planner/costmap_model.h>
@@ -70,11 +71,11 @@ namespace car_maneuver_recovery
       /**
        * @brief Initializes plugin
        * @param name: name of instance
-       * @param tfListener: ptr to the tf transform listener of the node
+       * @param tf: ptr to the tf transform of the node
        * @param globalCostmapROS: ptr to the global costmap of the node
        * @param localCostmapROS: ptr to the local costmap of the node
        */
-      void initialize(std::string name, tf::TransformListener* tfListener,
+      void initialize(std::string name, tf2_ros::Buffer* tf,
         costmap_2d::Costmap2DROS* globalCostmapROS,
         costmap_2d::Costmap2DROS* localCostmapROS);
 
@@ -100,8 +101,8 @@ namespace car_maneuver_recovery
       //! twist publisher
       ros::Publisher twistPub_;
 
-      //! tf transform listener
-      tf::TransformListener* tfListener_;
+      //! tf
+      tf2_ros::Buffer* tf_;
       //! local costmap ros wrapper ptr
       costmap_2d::Costmap2DROS* localCostmapROS_;
       //! global costmap ros wrapper ptr

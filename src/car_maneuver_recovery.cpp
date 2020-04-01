@@ -41,14 +41,13 @@
 #include <boost/foreach.hpp>
 
 // register this class as a recovery behavior plugin
-PLUGINLIB_DECLARE_CLASS(car_maneuver_recovery, CarManeuverRecovery,
-  car_maneuver_recovery::CarManeuverRecovery, nav_core::RecoveryBehavior)
+PLUGINLIB_EXPORT_CLASS(car_maneuver_recovery::CarManeuverRecovery, nav_core::RecoveryBehavior)
 
 namespace car_maneuver_recovery
 {
 
   CarManeuverRecovery::CarManeuverRecovery()
-  : tfListener_(NULL), globalCostmapROS_(NULL), localCostmapROS_(NULL)
+  : tf_(NULL), globalCostmapROS_(NULL), localCostmapROS_(NULL)
   , worldModel_(NULL), initialized_(false)
   {
   }
@@ -61,7 +60,7 @@ namespace car_maneuver_recovery
 
 
   void CarManeuverRecovery::initialize(std::string name,
-    tf::TransformListener* tfListener,
+    tf2_ros::Buffer* tf,
     costmap_2d::Costmap2DROS* globalCostmapROS,
     costmap_2d::Costmap2DROS* localCostmapROS)
   {
@@ -73,7 +72,7 @@ namespace car_maneuver_recovery
 
     // store arguments
     name_ = name;
-    tfListener_ = tfListener;
+    tf_ = tf;
     globalCostmapROS_ = globalCostmapROS;
     localCostmapROS_ = localCostmapROS;
 
@@ -131,11 +130,11 @@ namespace car_maneuver_recovery
       costmap_2d::padFootprint(footprint, extraFootprintPadding_);
 
       // transform robot footprint to oriented footprint
-      tf::Stamped<tf::Pose> robotPose;
+      geometry_msgs::PoseStamped robotPose;
       localCostmapROS_->getRobotPose(robotPose);
       std::vector<geometry_msgs::Point> orientedFootprint;
-      costmap_2d::transformFootprint(robotPose.getOrigin().getX(),
-        robotPose.getOrigin().getY(), tf::getYaw(robotPose.getRotation()),
+      costmap_2d::transformFootprint(robotPose.pose.position.x,
+        robotPose.pose.position.y, tf::getYaw(robotPose.pose.orientation),
         footprint, orientedFootprint);
 
       double frontLineCost, rearLineCost, leftLineCost, rightLineCost;
